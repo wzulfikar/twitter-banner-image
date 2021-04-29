@@ -10,8 +10,9 @@ export default async function handler(req, res) {
       banner: base64Banner,
     });
     console.log("[INFO] banner updated:", imageUrl);
+    res.send({ ok: true });
   } catch (e) {
     console.error("[ERROR] can't update twitter profile:", e);
+    res.send({ ok: false, msg: "check logs for error message" });
   }
-  res.send("ok");
 }

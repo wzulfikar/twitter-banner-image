@@ -14,7 +14,14 @@ async function getWeatherIcon(city) {
     `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`
   ).then((res) => res.json());
 
-  return openWeatherIcons[data.weather[0].icon];
+  const emoji = openWeatherIcons[data.weather[0].icon];
+
+  console.log(`[INFO] weather in ${city}:`, {
+    ...data.weather[0],
+    emoji: decodeURIComponent(emoji),
+  });
+
+  return emoji;
 }
 
 export async function getImageUrl(country1, country2) {

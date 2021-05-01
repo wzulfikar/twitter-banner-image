@@ -9,7 +9,12 @@ function getTime(tz) {
 }
 
 function getDay(tz) {
-  return format(new Date(), "iii", { timeZone: tz });
+  const localTime = new Date().toLocaleString("en-GB", { timeZone: tz });
+  const [date, month, year] = localTime.split(" ")[0].split("/");
+  return format(
+    new Date(parseInt(year), parseInt(month) - 1, parseInt(date)),
+    "iii"
+  );
 }
 
 async function getWeatherIcon(city) {

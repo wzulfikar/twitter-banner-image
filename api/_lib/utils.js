@@ -96,7 +96,7 @@ export async function getImageUrl(country1, country2) {
         ...data1,
       },
       country2: {
-        ...country1,
+        ...country2,
         ...data2,
       },
     },

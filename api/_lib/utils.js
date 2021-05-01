@@ -47,13 +47,13 @@ export async function getImageUrl(country1, country2) {
     (async () => ({
       time: getTime(country1.timezone),
       day: getDay(country1.timezone),
-      emoji: country1.flag,
+      flag: country1.flag,
       weather: await getWeatherIcon(country1.weather),
     }))(),
     (async () => ({
       time: getTime(country2.timezone),
       day: getDay(country2.timezone),
-      emoji: country2.flag,
+      flag: country2.flag,
       weather: await getWeatherIcon(country2.weather),
     }))(),
     getGlobalCovidCount(),
@@ -74,8 +74,8 @@ export async function getImageUrl(country1, country2) {
   const content = [
     // Main content
     `**Time is**<br/>`,
-    `${data1.emoji}${data1.weather} ${data1.time}${renderDay(data1.day)}<br/>`,
-    `${data2.emoji}${data2.weather} ${data2.time}${renderDay(data2.day)}<br/>`,
+    `${data1.flag}${data1.weather} ${data1.time}${renderDay(data1.day)}<br/>`,
+    `${data2.flag}${data2.weather} ${data2.time}${renderDay(data2.day)}<br/>`,
 
     // Sub content
     renderCovidCount(globalCovidCount),
@@ -83,7 +83,19 @@ export async function getImageUrl(country1, country2) {
 
   const encodeContent = encodeURIComponent(content.join(""));
 
-  return `https://og-image.wzulfikar.com/i/${encodeContent}.png?theme=dark&md=1&fontSize=100px&images=NO_IMAGE`;
+  return {
+    imageUrl: `https://og-image.wzulfikar.com/i/${encodeContent}.png?theme=dark&md=1&fontSize=100px&images=NO_IMAGE`,
+    payload: {
+      country1: {
+        ...country1,
+        ...data1,
+      },
+      country2: {
+        ...country1,
+        ...data2,
+      },
+    },
+  };
 }
 
 // Fetch image as buffer and convert to base64

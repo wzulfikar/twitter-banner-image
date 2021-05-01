@@ -16,31 +16,40 @@ function sendImage(res, buffer) {
 
 export default async function handler(req, res) {
   try {
-    const imageUrl = await getImageUrl(country.finland, country.indonesia);
+    const { imageUrl, payload } = await getImageUrl(
+      country.finland,
+      country.indonesia
+    );
     const base64Banner = await getImageBase64(imageUrl);
 
     const { preview, token, debug } = req.query;
+
+    // Handle preview mode
     if (preview === "true") {
       sendImage(res, Buffer.from(base64Banner, "base64"));
       return;
     }
 
-    // Handle debug param
+    // Handle debug mode
     if (debug === "true") {
       res.status(200).send({
         ok: true,
         msg: "debug mode enabled",
-        image: imageUrl,
+        data: {
+          imageUrl,
+          payload,
+        },
       });
       return;
     }
 
-    // Prevent unauthorized request to trigger twitter update
+    // Prevent unauthorized request so it doesn't trigger Twitter API call
     if (token !== SECRET_TOKEN) {
       res.status(400).send({ ok: false, msg: "bad request" });
       return;
     }
 
+    // Happy path: actually update the twitter banner
     await twitter.accountsAndUsers.accountUpdateProfileBanner({
       banner: base64Banner,
     });

@@ -11,28 +11,34 @@ export function getTime(tz) {
 
 export function getDay(tz) {
   const localTime = new Date().toLocaleString("en-GB", { timeZone: tz });
+
+  // Split localTime to date parts to preserve timezone when formatted
   const [date, month, year] = localTime.split(" ")[0].split("/");
+
   return format(
     new Date(parseInt(year), parseInt(month) - 1, parseInt(date)),
     "iii"
   );
 }
 
-export async function getWeatherIcon(city) {
+export async function getWeather(city) {
   const apiKey = process.env.OPENWEATHER_API;
 
   const data = await fetch(
-    `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`
+    `https://api.openweathermap.org/data/2.5/weather?units=metric&q=${city}&appid=${apiKey}`
   ).then((res) => res.json());
 
-  const emoji = openWeatherIcons[data.weather[0].icon];
+  const icon = openWeatherIcons[data.weather[0].icon];
 
   console.log(`[INFO] weather in ${city}:`, {
     ...data.weather[0],
-    emoji: emoji,
+    icon: icon,
   });
 
-  return emoji;
+  // Uncomment to debug
+  // console.log("weather data:", data);
+
+  return { icon, celcius: Math.round(data.main.feels_like) };
 }
 
 export async function getGlobalCovidCount() {

@@ -64,7 +64,7 @@ export async function getImageUrl(country1, country2) {
   data2.weather = data1.weather.replace(" ", "");
 
   const renderDay = (day) =>
-    `<span style="font-size: 2rem; padding-left: 2px;">(${day})</span>`;
+    `<span style="font-size: 2.3rem; padding-left: 2px;">(${day})</span>`;
 
   const renderCovidCount = (count) =>
     `<span style="font-size: 4rem;">Global Covid Count: <u style="color: orange;">${count.toLocaleString(

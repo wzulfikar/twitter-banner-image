@@ -19,9 +19,19 @@ export default async function handler(req, res) {
     const imageUrl = await getImageUrl(country.finland, country.indonesia);
     const base64Banner = await getImageBase64(imageUrl);
 
-    const { preview, token } = req.query;
+    const { preview, token, debug } = req.query;
     if (preview === "true") {
       sendImage(res, Buffer.from(base64Banner, "base64"));
+      return;
+    }
+
+    // Handle debug param
+    if (debug === "true") {
+      res.status(200).send({
+        ok: true,
+        msg: "debug mode enabled",
+        image: imageUrl,
+      });
       return;
     }
 

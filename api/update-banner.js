@@ -1,6 +1,7 @@
 import country from "./_lib/country";
 import twitter from "./_lib/twitter";
-import { getImageUrl, getImageBase64 } from "./_lib/utils";
+import getImageUrl from "./_lib/getImageUrl";
+import getImageBase64 from "./_lib/getImageBase64";
 
 const SECRET_TOKEN = process.env.SECRET_TOKEN;
 

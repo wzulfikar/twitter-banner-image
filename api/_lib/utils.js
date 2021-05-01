@@ -1,10 +1,15 @@
 import fetch from "node-fetch";
+import format from "date-fns/format";
 import openWeatherIcons from "./openWeatherIcons";
 
 function getTime(tz) {
   const datetime = new Date().toLocaleString("en-GB", { timeZone: tz }); // Example: 29/04/2021, 03:27:08
   const time = datetime.substr(-8).substr(0, 5).replace(":", ".");
   return time;
+}
+
+function getDay(tz) {
+  return format(new Date(), "iii", { timeZone: tz });
 }
 
 async function getWeatherIcon(city) {
@@ -18,27 +23,67 @@ async function getWeatherIcon(city) {
 
   console.log(`[INFO] weather in ${city}:`, {
     ...data.weather[0],
-    emoji: decodeURIComponent(emoji),
+    emoji: emoji,
   });
 
   return emoji;
 }
 
+async function getGlobalCovidCount() {
+  try {
+    // Use JHU data from https://github.com/mathdroid/covid-19-api
+    const data = await fetch("https://covid19.mathdro.id/api").then((res) =>
+      res.json()
+    );
+    return data.confirmed.value;
+  } catch (e) {
+    console.log("[ERROR] utils.getGlobalCovidCount failed:", e.message);
+    return null;
+  }
+}
+
 export async function getImageUrl(country1, country2) {
-  const [data1, data2] = await Promise.all([
+  const [data1, data2, globalCovidCount] = await Promise.all([
     (async () => ({
       time: getTime(country1.timezone),
-      emoji: encodeURIComponent(country1.flag),
+      day: getDay(country1.timezone),
+      emoji: country1.flag,
       weather: await getWeatherIcon(country1.weather),
     }))(),
     (async () => ({
       time: getTime(country2.timezone),
-      emoji: encodeURIComponent(country2.flag),
+      day: getDay(country2.timezone),
+      emoji: country2.flag,
       weather: await getWeatherIcon(country2.weather),
     }))(),
+    getGlobalCovidCount(),
   ]);
 
-  return `https://og-image.wzulfikar.com/i/**Time%20is**%3Cbr%2F%3E${data1.emoji}${data1.weather}%20${data1.time}%3Cbr%2F%3E${data2.emoji}${data2.weather}%20${data2.time}.png?theme=dark&md=1&fontSize=100px&images=NO_IMAGE`;
+  // Remove space from weather emoji (if any)
+  data1.weather = data1.weather.replace(" ", "");
+  data2.weather = data1.weather.replace(" ", "");
+
+  const renderDay = (day) =>
+    `<span style="font-size: 2rem; padding-left: 2px;">(${day})</span>`;
+
+  const renderCovidCount = (count) =>
+    `<span style="font-size: 4rem;">Global Covid Count: <u style="color: orange;">${count.toLocaleString(
+      "en-US"
+    )}</u><span>`;
+
+  const content = [
+    // Main content
+    `**Time is**<br/>`,
+    `${data1.emoji}${data1.weather} ${data1.time}${renderDay(data1.day)}<br/>`,
+    `${data2.emoji}${data2.weather} ${data2.time}${renderDay(data2.day)}<br/>`,
+
+    // Sub content
+    renderCovidCount(globalCovidCount),
+  ];
+
+  const encodeContent = encodeURIComponent(content.join(""));
+
+  return `https://og-image.wzulfikar.com/i/${encodeContent}.png?theme=dark&md=1&fontSize=100px&images=NO_IMAGE`;
 }
 
 // Fetch image as buffer and convert to base64

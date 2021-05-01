@@ -61,7 +61,7 @@ export async function getImageUrl(country1, country2) {
 
   // Remove space from weather emoji (if any)
   data1.weather = data1.weather.replace(" ", "");
-  data2.weather = data1.weather.replace(" ", "");
+  data2.weather = data2.weather.replace(" ", "");
 
   const renderDay = (day) =>
     `<span style="font-size: 2.3rem; padding-left: 2px;">(${day})</span>`;
